@@ -8,6 +8,9 @@ cc.Class({
             default: null,
             type: cc.Label
         },
+		heart1Spr:cc.Sprite,
+		heart2Spr:cc.Sprite,
+		heart3Spr:cc.Sprite,
 		labGameOver: cc.Label,
 		playBtn: cc.Button,
 		graphics: {
@@ -46,18 +49,26 @@ cc.Class({
 		}
 	},
 	onTouchEnd: function(e){
+		var sizerange = 1;
 		console.log("TOUCH_END");
 		if(this.inGame){
 			this.touched = false;
 			var count = this.frame - this.touchedFrame;
 			if(this.tower.floorList.length == 1 || count <= this.tower.floorList[1].size){
 				this.label.string = this.tower.floorList.length;
+				if (this.tower.floorList.length > 1 && this.tower.floorList[1].size-sizerange <= count){
+					this.tower.floorList[0].size = this.tower.floorList[1].size;
+					if (this.hp < 3){
+						this.hp ++;
+						this.onHpUpdate(this.hp);
+					}
+				}
 				this.tower.addFloor();
 			}else{
 				this.tower.floorList[0].size = 0;
-				if (this.hp > 1)
-					this.hp --;
-				else{
+				this.hp --;
+				this.onHpUpdate(this.hp);
+				if (this.hp < 1){
 					this.inGame = false;
 					this.labGameOver.node.active = true;
 				}
@@ -71,6 +82,13 @@ cc.Class({
 		}
 	},
 	
+	onHpUpdate: function(hp){
+		console.log("hp"+hp);
+		this.heart1Spr.node.active = hp >= 1;
+		this.heart2Spr.node.active = hp >= 2;
+		this.heart3Spr.node.active = hp >= 3;
+	},
+	
 	onClickButton: function(event){
 		this.hp = 3;
 		this.frame = 0;
@@ -79,5 +97,7 @@ cc.Class({
 		this.tower.addFloor();
 		this.playBtn.node.active = false;
 		this.inGame = true;
+		this.label.string = 0;
+		this.onHpUpdate(this.hp);
 	}
 });
